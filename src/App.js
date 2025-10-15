@@ -12,9 +12,17 @@ export default function Board() {
   const [xIsNext, setXIsNext] = useState(true)
   const [squares, setSquares] = useState(Array(9).fill(null))
 
+  const winner = calculateWinner(squares)
+  let status
+  if (winner) {
+    status = "Winner! Congrats to " + winner
+  } else {
+    status = "Next move belongs to " + (xIsNext ? "X" : "O")
+  }
+
   function handleClick(i) {
-    // If the square already has a value, do nothing
-    if (squares[i]) return
+    // If the square already has a value or we have a winner, return early
+    if (squares[i] || calculateWinner(squares)) return
 
     // .slice() is used to create a shallow copy of an array
     const nextSquares = squares.slice()
@@ -31,6 +39,7 @@ export default function Board() {
 
   return (
     <>
+      <div className="status">{status}</div>
       <div className="board-row">
         <Square value={squares[0]} onSquareClick={() => handleClick(0)} />
         <Square value={squares[1]} onSquareClick={() => handleClick(1)} />
@@ -48,4 +57,27 @@ export default function Board() {
       </div>
     </>
   )
+}
+
+function calculateWinner(squares) {
+  const lines = [
+    [0, 1, 2],
+    [3, 4, 5],
+    [6, 7, 8],
+    [0, 3, 6],
+    [1, 4, 7],
+    [2, 5, 8],
+    [0, 4, 8],
+    [2, 4, 6]
+  ]
+
+  for (const line of lines) {
+    const [a, b, c] = line
+    if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
+      console.log('Winner! Congrats to ', squares[a])
+      return squares[a]
+    }
+  }
+
+  return null
 }
