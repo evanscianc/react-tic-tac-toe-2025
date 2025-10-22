@@ -8,15 +8,7 @@ function Square({ value, onSquareClick }) {
   )
 }
 
-function Board({ xIsNext, squares, onPlay}) {
-  const winner = calculateWinner(squares)
-  let status
-  if (winner) {
-    status = "Winner! Congrats to " + winner
-  } else {
-    status = "Next move belongs to " + (xIsNext ? "X" : "O")
-  }
-
+function Board({ xIsNext, squares, onPlay }) {
   function handleClick(i) {
     // If the square already has a value or we have a winner, return early
     if (squares[i] || calculateWinner(squares)) return
@@ -31,6 +23,14 @@ function Board({ xIsNext, squares, onPlay}) {
     }
 
     onPlay(nextSquares)
+  }
+
+  const winner = calculateWinner(squares)
+  let status
+  if (winner) {
+    status = "Winner! Congrats to " + winner
+  } else {
+    status = "Next move belongs to " + (xIsNext ? "X" : "O")
   }
 
   return (
@@ -56,15 +56,38 @@ function Board({ xIsNext, squares, onPlay}) {
 }
 
 export default function Game() {
-  const [xIsNext, setXIsNext] = useState(true)
   // We initialize it with the first set of moves—all null to start
   const [history, setHistory] = useState([Array(9).fill(null)])
-  const currentSquares = history[history.length - 1]
+  const [currentMove, setCurrentMove] = useState(0)
+  const xIsNext = currentMove % 2 === 0
+  const currentSquares = history[currentMove]
 
   function handlePlay(nextSquares) {
-    setHistory([...history, nextSquares])
-    setXIsNext(!xIsNext)
+    const nextHistory = [...history.slice(0, currentMove + 1), nextSquares]
+    setHistory(nextHistory)
+    setCurrentMove(nextHistory.length - 1)
   }
+
+  function jumpTo(nextMove) {
+    setCurrentMove(nextMove)
+  }
+
+  // Within the arguments of the .map callback function, squares = current element, move = index within the array
+  // The moves array will contain React elements (<li> elements)
+  const moves = history.map((squares, move) => {
+    let description
+    if (move > 0) {
+      description = 'Go to move #' + move
+    } else {
+      description = 'Go to game start'
+    }
+
+    return (
+      <li key={move}>
+        <button onClick={() => jumpTo(move)}>{description}</button>
+      </li>
+    )
+  })
 
   return (
     <div className="game">
@@ -72,7 +95,7 @@ export default function Game() {
         <Board xIsNext={xIsNext} squares={currentSquares} onPlay={handlePlay} />
       </div>
       <div className="game-info">
-        <ol>{/* TODO */}</ol>
+        <ol>{moves}</ol>
       </div>
     </div>
   )
