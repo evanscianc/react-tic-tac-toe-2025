@@ -33,23 +33,27 @@ function Board({ xIsNext, squares, onPlay }) {
     status = "Next move belongs to " + (xIsNext ? "X" : "O")
   }
 
-  // Two for loops - my solution, but not as idiomatic as using .map(), which we'll do next
-  const rows = []
-  for (let r = 0; r < 3; r++) {
-    const rowSquares = []
-    for (let c = 0; c < 3; c++) {
-      const index = r * 3 + c
-      rowSquares.push((
-        <Square key={index} value={squares[index]} onSquareClick={() => handleClick(index)} />
-      ))
-    }
+  const boardSize = 3
+  // Creates an array that looks like [0, 1, 2] for boardSize = 3
+  const indices = Array.from(Array(boardSize).keys())
 
-    rows.push((
-      <div key={r} className="board-row">
-        {rowSquares}
+  const rows = indices.map((rowIndex) => {
+    // Construct columns for this row
+    const cols = indices.map((colIndex) => {
+      const squaresIndex = rowIndex * 3 + colIndex
+
+      return (
+        <Square key={squaresIndex} value={squares[squaresIndex]} onSquareClick={() => handleClick(squaresIndex)} />
+      )
+    })
+
+    // Return the row with columns
+    return (
+      <div key={rowIndex} className="board-row">
+        {cols}
       </div>
-    ))
-  }
+    )
+  })
 
   return (
     <>
